@@ -1,4 +1,6 @@
+from collections import defaultdict
 import re
+
 
 def get_setup():
     return {
@@ -23,15 +25,27 @@ def get_markup(markup_request):
         return { 'error': 'You should give me a pattern.' }
 
     tokens_to_mark = []
+    matching_types_fd = defaultdict(int)
 
     for i in range(len(tokens)):
         if re.search(pattern, tokens[i]):
-            tokens_to_mark.append(i)  
+            tokens_to_mark.append(i)
+            matching_types_fd[tokens[i]] += 1
     
-    report = '%d of %d tokens match the pattern: %s' % (
+    report = """
+        <div>
+            <ul>
+                <li><b>%d</b> of %d tokens match the pattern: %s</li>
+		        <li>Matching tokens consist of <b>%d</b> different types</li>
+                <li>Most common type is <b>%s</b></li>
+            </ul>
+        </div>
+    """ % (
         len(tokens_to_mark), 
         len(tokens), 
-        pattern
+        pattern,
+        len(matching_types_fd),
+        sorted(matching_types_fd.items(), key=lambda item: item[1])[-1][0]
     )
 
     return { 
