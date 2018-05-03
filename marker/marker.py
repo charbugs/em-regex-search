@@ -1,7 +1,6 @@
 from collections import defaultdict
 import re
 
-
 def get_setup():
     return {
         'title': 'Regular Expression Search',
