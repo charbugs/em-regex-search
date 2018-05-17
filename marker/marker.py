@@ -35,7 +35,7 @@ def get_markup(markup_request):
         <div>
             <ul>
                 <li><b>%d</b> of %d tokens match the pattern: %s</li>
-		        <li>Matching tokens consist of <b>%d</b> different types</li>
+		<li>Matching tokens consist of <b>%d</b> different types</li>
                 <li>Most common type is <b>%s</b></li>
             </ul>
         </div>
@@ -44,10 +44,15 @@ def get_markup(markup_request):
         len(tokens), 
         pattern,
         len(matching_types_fd),
-        sorted(matching_types_fd.items(), key=lambda item: item[1])[-1][0]
+        get_most_common_type(matching_types_fd)
     )
 
     return { 
         'markup': [ { 'tokens': tokens_to_mark } ], 
         'report' : report 
     }
+
+def get_most_common_type(matching_types_fd):
+    sorted_items = sorted(matching_types_fd.items(), key=lambda item: item[1])
+    return sorted_items[-1][0] if sorted_items else ''
+
