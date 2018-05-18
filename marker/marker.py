@@ -11,7 +11,9 @@ def get_setup():
                 'type': 'text',
                 'label': 'Regular Expression',
             }
-        ]
+        ],
+	"supportedLanguages": "any",
+	"homepage": "https://gihub.com/charbugs/em-regex-search"
     }
 
 def get_markup(markup_request):
