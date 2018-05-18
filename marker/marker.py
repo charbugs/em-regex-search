@@ -13,7 +13,7 @@ def get_setup():
             }
         ],
 	"supportedLanguages": "any",
-	"homepage": "https://gihub.com/charbugs/em-regex-search"
+	"homepage": "https://github.com/charbugs/em-regex-search"
     }
 
 def get_markup(markup_request):
