@@ -1,13 +1,37 @@
 from collections import defaultdict
 import re
 
+def create_report(matched_tokens, pattern):
+    
+    if len(matched_tokens) == 0:
+        return "<div>No matches for <b>%s</b>.</div>" % (pattern)
+
+    fd = create_freq_dist(matched_tokens)
+    fd = sorted(fd, key=lambda record: record[1], reverse=True)
+    list_items = ["<li>%s (%d)</li>" % (record[0], record[1]) for record in fd]
+
+    return """
+        <div>
+            <b>%d</b> matches for <b>%s</b>:
+            <ul>
+                %s
+            </ul>
+        </div>""" % (len(matched_tokens), pattern, ''.join(list_items))
+
+
+def create_freq_dist(tokens):
+    fd = defaultdict(int)
+    for token in tokens:
+        fd[token] += 1
+    return fd.items()
+
 def get_setup():
     return {
         'title': 'Regular Expression Search',
         'description': "<div>Find words that match a regular expression.</div>",
         'inputs': [
             {
-                'id': 're',
+                'id': 'pattern',
                 'type': 'text',
                 'label': 'Regular Expression',
             }
@@ -20,41 +44,26 @@ def get_markup(markup_request):
 
 
     tokens = markup_request['tokens']
-    pattern = markup_request['inputs']['re']
+    pattern = markup_request['inputs']['pattern']
 
     if not pattern:
-        return { 'error': 'You should give me a pattern.' }
+        return { 'error': 'You should give me a regular expression.' }
 
-    tokens_to_mark = []
-    matching_types_fd = defaultdict(int)
+    try:
+        expression = re.compile(pattern)
+    except:
+        return { 'error': "Doesn't look like a valid regular expression." }        
+
+    matched_tokens = []
+    matched_indizes = []
 
     for i in range(len(tokens)):
-        if re.search(pattern, tokens[i]):
-            tokens_to_mark.append(i)
-            matching_types_fd[tokens[i]] += 1
+        if re.search(expression, tokens[i]):
+            matched_tokens.append(tokens[i])
+            matched_indizes.append(i)
     
-    report = """
-        <div>
-            <ul>
-                <li><b>%d</b> of %d tokens match the pattern: %s</li>
-		<li>Matching tokens consist of <b>%d</b> different types</li>
-                <li>Most common type is <b>%s</b></li>
-            </ul>
-        </div>
-    """ % (
-        len(tokens_to_mark), 
-        len(tokens), 
-        pattern,
-        len(matching_types_fd),
-        get_most_common_type(matching_types_fd)
-    )
-
     return { 
-        'markup': [ { 'tokens': tokens_to_mark } ], 
-        'report' : report 
+        'markup': [ { 'tokens': matched_indizes } ], 
+        'report' : create_report(matched_tokens, pattern)
     }
-
-def get_most_common_type(matching_types_fd):
-    sorted_items = sorted(matching_types_fd.items(), key=lambda item: item[1])
-    return sorted_items[-1][0] if sorted_items else ''
 
